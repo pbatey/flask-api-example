@@ -15,17 +15,6 @@ This example also shows how to one might deploy the applicaiton to a Kuberntes c
 
 ## Development
 
-First, you'll need to configure any secrets in a `.env` file:
-
-**.env**
-```
-API_TOKEN=
-CORS=
-```
-
-I recommend using a random UUID as the API_TOKEN: `python -c "import uuid; print(uuid.uuid4());"`. Or if
-the users login to the frontend, a JWT token (not yet implemented).
-
 Assuming you have **Python 3** installed, you can quickly start a local server with:
 
 ```
@@ -42,13 +31,20 @@ Although there are many ways to layout a Flask applicaiton and the routes, this 
 * `app` - the application source
 * `app/__main__.py` - the main entry point for development
 * `app/__init__.py` - the Flask applicaiton instance
-* `app/util/auth_decorators.py` - decorator to ensure request have a valid authentication header
 * `app/api/__init__.py` - defines init_app to register api and swagger ui
 * `app/api/swagger.py` - swagger configuration
 * `app/api/v1/*.py` - individual sets of api endpoints (flask blueprints)
-* `app/api/apispec.yaml` - [OpenAPI](https://www.openapis.org/) specification with shared definitions and 
+* `app/api/apispec.yaml` - [OpenAPI](https://www.openapis.org/) specification with shared definitions.
+
+**Note:** these files are related to authentication/authorization and are not yet working:
+
+* `app/api/decorators.py` - used to decorate routes that require auth
+* `app/api/keypair.py` - used to sign and verify JWT tokens
+* `app/api/auth_token.py` - used to exchange a login code for a JWT token
 
 The main entrypoint is `app/__index__.py`. It initializes the flask app, applies the api blueprints, and the _flasgger_ configuration.
+
+### Extending the api
 
 Each of the `*.py` files under `app/api/v1` creates a Flask blueprint named app. This way you can add calls easily.
 Each endpoint has a python docstring (a triple-quoted-string) that contains a partial OpenAPI spec used by Flasgger for the API UI.
@@ -56,6 +52,16 @@ Each endpoint has a python docstring (a triple-quoted-string) that contains a pa
 The idea is that you can can create a new file under `app/api/v1` and it will automatically be included in the API, no import
 or initialization required (via `app/api/__init__.py` called by `app/__init__.py`).
 
+In general, I prefer a functional approach over Classes so I avoid _flask_restful.Resource_.
+
+### Schema Validation
+
+The request validation pattern I use validates json objects against the OpenAPI spec in the docstring of the routes.
+See `app/api/v1/todo.py` for an example.
+
+I found this preferrable to using `flasgger.validate()` directly, since it requires the path to a yaml file. I want
+to use the schema initilized with the swagger instance, but because of the way I'm using blueprints, it's not
+straightfoward to use `swagger.validate()` either.
 
 ## Thoughts on Deployment
 
@@ -66,10 +72,8 @@ Although I haven't used it, Google has a hosted Kubernetes solution that I think
 If you have `docker` installed, you can build and run the application in a container:
 
 ```
-docker build -t my-flask-api
-
-docker run -p 80:5000 \
-  my-flask-api
+docker build -t flask-api-example .
+docker run -it --rm -p 5000:80 flask-api-example
 ```
 
 Then visit [http://localhost:5000]() with a browser.
