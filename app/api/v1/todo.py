@@ -23,6 +23,19 @@ def list_entries():
   ---
   tags:
     - todo
+
+  definitions:
+    Todo:
+      type: object
+      properties:
+        id: { type: string }
+        note: { type: string }
+        due: { type: string, format: date-time }
+        created: { type: string, format: date-time }
+        completed: { type: string, format: date-time }
+        last_updated: { type: string, format: date-time }
+      required: [ id, note, created ]
+
   responses:
     200:
       content:
@@ -78,12 +91,15 @@ def create():
     content:
       application/json:
         schema:
-          id: CreateTodo
-          type: object
-          properties:
-            note: { type: string }
-            due: { type: string, format: date-time }
-          required: [ note ]
+          $ref: '#/definitions/CreateTodo'
+
+  definitions:
+    CreateTodo:
+      type: object
+      properties:
+        note: { type: string }
+        due: { type: string, format: date-time }
+      required: [ note ]
 
   responses:
     400:
@@ -126,7 +142,7 @@ def update(id):
       content:
         application/json:
           schema:
-            $ref: '#/definitions/Todo'
+            $ref: '#/defintions/Todo'
   """
   json = request.get_json()
   validate(json, 'Todo')

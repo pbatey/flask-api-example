@@ -22,25 +22,11 @@ components:
     #  in: cookie
     #  name: session
 
-# these will show up under 'Schemas' in the UI
-components/schemas:
-
 # these won't show up under 'Schemas' in the UI
-definitions:
-  CreateTodo:
-    type: object
-    properties:
-      note: { type: string }
-      due: { type: string, format: date-time }
-    required: [ note ]
+#definitions:
 
-  Todo:
-    type: object
-    properties:
-      id: { type: string }
-      note: { type: string }
-      due: { type: string, format: date-time }
-      created: { type: string, format: date-time }
-      completed: { type: string, format: date-time }
-      last_updated: { type: string, format: date-time }
-    required: [ id, note, created ]
+# these will show up under 'Schemas' in the UI
+components:
+  schemas:
+    Todo:
+      $ref: '#/definitions/Todo'
