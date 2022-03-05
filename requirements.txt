@@ -1,0 +1,7 @@
+cryptography
+python-dotenv
+flask
+flasgger
+flask_staticdirs
+pyjwt
+jsonpatch
