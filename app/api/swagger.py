@@ -1,4 +1,3 @@
-from http.client import HTTPException
 import os
 import flasgger
 import pkg_resources
